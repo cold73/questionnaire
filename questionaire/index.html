@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Questionnaire</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="app">
+      <aside class="sidebar">
+        <h1 class="app-title">Questionnaire</h1>
+        <ol id="section-list" class="section-list"></ol>
+        <div class="save-status" id="save-status">Draft saved</div>
+      </aside>
+      <main class="content">
+        <div id="section-title" class="section-title"></div>
+        <form id="form" novalidate></form>
+        <div class="nav">
+          <button id="prev" type="button" class="btn secondary">Back</button>
+          <div class="spacer"></div>
+          <button id="save" type="button" class="btn secondary">Save Draft</button>
+          <button id="next" type="button" class="btn primary">Next</button>
+          <button id="submit" type="submit" class="btn primary" form="form">Submit</button>
+        </div>
+        <details class="payload">
+          <summary>View submission JSON</summary>
+          <pre id="payload"></pre>
+        </details>
+      </main>
+    </div>
+    <script src="app.js"></script>
+  </body>
+  </html>
