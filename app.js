@@ -132,17 +132,20 @@ function wireNav() {
     document.getElementById("payload").textContent = JSON.stringify(payload, null, 2);
     saveDraft(schema.id, state.values); // update draft
     console.log("Submission payload", payload);
-    // Try to send to server; fallback to local download if unavailable
-    const sent = await trySubmitToServer(payload).catch(() => false);
-    if (sent) {
-      flashSaved("Submitted to server");
-    } else {
-      flashSaved("Server unavailable — downloaded locally");
-      try {
-        const ts = formatTimestamp(new Date());
-        const filename = `${(schema.id || 'submission').replace(/[^a-z0-9-_]+/gi,'_')}-${ts}.json`;
-        downloadJSON(payload, filename);
-      } catch (err) { console.warn('Download failed', err); }
+    
+    // 总是尝试发送到服务器，不再下载到本地
+    try {
+      const sent = await trySubmitToServer(payload);
+      if (sent) {
+        flashSaved("提交成功！数据已发送到服务器");
+      } else {
+        flashSaved("提交失败，请确保服务器已启动");
+        alert("提交失败，请确保服务器已启动。请运行 'node server.js' 启动服务器后再试。");
+      }
+    } catch (err) {
+      console.error("提交错误", err);
+      flashSaved("提交出错，请稍后再试");
+      alert("提交出错，请稍后再试。错误详情请查看控制台。");
     }
   });
 }
