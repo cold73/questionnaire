@@ -37,8 +37,8 @@ const schema = {
           hint: "至少添加 3 篇论文。建议优先填写自己熟悉的论文。",
           itemFields: [
             { id: "titleVenue", label: "题目 + 会议/期刊-年份", type: "text", required: true, placeholder: "e.g., TreeCen: Building Tree Graph for Scalable Semantic Code Clone Detection (ASE'22)" },
-            { id: "paper method", label: "论文提出的方法（按照pipeline的phase填写）", type: "textarea", required: true, placeholder: "- Input：AST \n- Representation：提出采用centrality analysis表征AST节点\n- Discrimination：基于 centrality 向量的相似度\n- Inference：machine learning classifier\n- Output：函数级clone结果（0/1）" },
-            { id: "innovation", label: "【创新机制】（用自然语言简述）", type: "textarea", required: true, placeholder: "Representation 层的 ... 机制，如何提升 ... \ne.g., Representation层的“centrality analysis”机制。图论的中心性分析机制能揭示语法树中关键节点的语义影响力，从而提升语义克隆向量表示的判别性与高效检索性能。" },
+            { id: "paper method", label: "论文提出的方法（按照pipeline的phase填写）", type: "textarea", required: true, placeholder: "- Input：AST\n- Representation：提出采用centrality analysis表征AST节点\n- Discrimination：基于 centrality 向量的相似度\n- Inference：machine learning classifier\n- Output：函数级clone结果（0/1）" },
+            { id: "innovation", label: "【创新机制】（用自然语言简述）", type: "textarea", required: true, placeholder: "Representation 层的 ... 机制，如何提升 ...\ne.g.,Representation层的“centrality analysis”机制。图论的中心性分析机制能揭示语法树中关键节点的语义影响力，从而提升语义克隆向量表示的判别性与高效检索性能。" },
             { id: "problemsSolved", label: "【解决的Problem】（用逗号分隔）", type: "textarea", required: true, placeholder: "e.g., semantic clone detection, scalable clone detection" }
           ]
         }
@@ -132,20 +132,17 @@ function wireNav() {
     document.getElementById("payload").textContent = JSON.stringify(payload, null, 2);
     saveDraft(schema.id, state.values); // update draft
     console.log("Submission payload", payload);
-    
-    // 总是尝试发送到服务器，不再下载到本地
-    try {
-      const sent = await trySubmitToServer(payload);
-      if (sent) {
-        flashSaved("提交成功！数据已发送到服务器");
-      } else {
-        flashSaved("提交失败，请确保服务器已启动");
-        alert("提交失败，请确保服务器已启动。请运行 'node server.js' 启动服务器后再试。");
-      }
-    } catch (err) {
-      console.error("提交错误", err);
-      flashSaved("提交出错，请稍后再试");
-      alert("提交出错，请稍后再试。错误详情请查看控制台。");
+    // Try to send to server; fallback to local download if unavailable
+    const sent = await trySubmitToServer(payload).catch(() => false);
+    if (sent) {
+      flashSaved("Submitted to server");
+    } else {
+      flashSaved("Server unavailable — downloaded locally");
+      try {
+        const ts = formatTimestamp(new Date());
+        const filename = `${(schema.id || 'submission').replace(/[^a-z0-9-_]+/gi,'_')}-${ts}.json`;
+        downloadJSON(payload, filename);
+      } catch (err) { console.warn('Download failed', err); }
     }
   });
 }
